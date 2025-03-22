@@ -1,0 +1,196 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SEO Analysis Tool</title>
+    <link rel="stylesheet" href="/static/style.css">
+    <script>
+        function showLoader() {
+            document.getElementById("loader").style.display = "flex";
+            document.getElementById("results").style.display = "none";
+        }
+        function hideLoader() {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("results").style.display = "block";
+        }
+    </script>
+    <style>
+        /* General Styling */
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f4f7fc;
+            color: #333;
+            margin: 0;
+            padding: 20px;
+            text-align: center;
+        }
+        .container {
+            width: 95%;
+            margin: auto;
+            background: #fff;
+            padding: 25px;
+            border-radius: 10px;
+            box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        h1 {
+            color: #007bff;
+            margin-bottom: 20px;
+        }
+
+        /* Loader Styles */
+        #loader {
+            display: none;
+            align-items: center;
+            justify-content: center;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .spinner {
+            border: 4px solid rgba(0, 0, 0, 0.1);
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            border-left-color: #007bff;
+            animation: spin 1s linear infinite;
+        }
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        /* Form Styling */
+        form {
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+            margin-bottom: 20px;
+        }
+        input[type="url"] {
+            padding: 12px;
+            width: 70%;
+            border: 1px solid #ccc;
+            border-radius: 5px;
+            font-size: 16px;
+        }
+        button {
+            padding: 12px 20px;
+            background: #007bff;
+            color: white;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+        }
+        button:hover {
+            background: #0056b3;
+        }
+
+        /* Result Styling */
+        .result-box {
+            background: #f9f9f9;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 6px solid #007bff;
+            margin: 15px 0;
+            text-align: left;
+            box-shadow: 0px 3px 6px rgba(0, 0, 0, 0.1);
+        }
+        .result-box h3 {
+            color: #007bff;
+            margin-bottom: 8px;
+        }
+        .result-box p {
+            line-height: 1.6;
+            font-size: 14px;
+        }
+        .result-box ul {
+            padding-left: 20px;
+        }
+        .result-box li {
+            margin-bottom: 5px;
+        }
+
+        /* Download Section */
+        .download-section {
+            margin-top: 20px;
+            display: flex;
+            justify-content: center;
+            gap: 10px;
+        }
+        .download-button {
+            padding: 10px 15px;
+            background: #28a745;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            font-size: 14px;
+            /* transition: background 0.3s; */
+        }
+        .download-button:hover {
+            background: #218838;
+        }
+        .exception{
+          
+            font-weight: 400;
+        }
+        .exceptiontwo{
+        
+            font-weight: 400;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>SEO Analysis Tool</h1>
+        <form action="/analyze_seo" method="post" onsubmit="showLoader()">
+            <input type="url" id="url" name="url" placeholder="Enter website URL..." required>
+            <button type="submit">Analyze</button>
+        </form>
+
+        <!-- Loader Animation -->
+        <div id="loader">
+            <div class="spinner"></div>
+            <p>Analyzing... Please wait.</p>
+        </div>
+
+        {% if url %}
+        <div id="results">
+            <h2>Analysis Results for {{ url }}</h2>
+
+            <div class="result-box">
+                <h3>🔑 Keyword Analysis</h3>
+                <p>{{ keyword_results | replace('\n', '<br>') | replace('- ', '<li>') | replace('**', '<strong>') | replace('` ', '<p class="exception">') | replace('* ', '<span class="exceptiontwo">') | safe }}</p>
+            </div>
+
+            <div class="result-box">
+                <h3>📄 On-Page Optimization</h3>
+                <p>{{ onpage_results | replace('\n', '<br>') | replace('- ', '<li>') | replace('**', '<strong>') | replace('` ', '<p class="exception">') | replace('* ', '<span class="exceptiontwo">') | safe }}</p>
+            </div>
+
+            <div class="result-box">
+                <h3>📝 Content Analysis</h3>
+                <p>{{ content_results | replace('\n', '<br>') | replace('- ', '<li>') | replace('**', '<strong>') | replace('` ', '<p class="exception">') | replace('* ', '<span class="exceptiontwo">') | safe }}</p>
+            </div>
+
+            <div class="result-box">
+                <h3>🔧 Technical SEO</h3>
+                <p>{{ technical_results | replace('\n', '<br>') | replace('- ', '<li>') | replace('**', '<strong>') | replace('` ', '<p class="exception">') | replace('* ', '<span class="exceptiontwo">') | safe }}</p>
+            </div>
+
+            <div class="result-box">
+                <h3>🔗 Link Building</h3>
+                <p>{{ link_building_results | replace('\n', '<br>') | replace('- ', '<li>') | replace('**', '<strong>') | replace('` ', '<p class="exception">') | replace('* ', '<span class="exceptiontwo">') | safe }}</p>
+            </div>
+
+            <!-- Download Section -->
+            <div class="download-section">
+                <a href="/download_report?url={{ url }}&download_format=txt" class="download-button">📄 TXT Report</a>
+                <a href="/download_report?url={{ url }}&download_format=docx" class="download-button">📄 DOCX Report</a>
+            </div>
+        </div>
+        {% endif %}
+    </div>
+</body>
+</html>
