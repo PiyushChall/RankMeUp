@@ -8,7 +8,6 @@ import os
 import requests
 from bs4 import BeautifulSoup
 from urllib.parse import urljoin, urlparse
-import re  # Import the regular expression module
 from docx import Document  # Import python-docx
 
 load_dotenv()
@@ -17,7 +16,8 @@ app = FastAPI()
 app.mount("/static", StaticFiles(directory="static"), name="static")
 templates = Jinja2Templates(directory="templates")
 
-genai.configure(api_key="AIzaSyDFgE8N8C1-oUEKLXXdSO8ty5T3OrqdVp4")
+
+genai.configure(api_key=os.getenv("GOOGLE_API_KEY"))
 model = genai.GenerativeModel('gemini-2.0-flash')
 
 def clean_text(text):
@@ -29,18 +29,27 @@ class Agent:
         self.name = name
         self.description = description
 
-    def analyze(self, url):
+    def url_analyze(self, url):
+        raise NotImplementedError
+
+    def keyword_analyse(self, keyword):
         raise NotImplementedError
 
 class KeywordResearchAgent(Agent):
-    def analyze(self, url):
-        prompt = f"Find relevant keywords for the following URL: {url}. Describe the different types of keywords that are relevant (e.g., general keywords, long-tail keywords, etc.) and explain their importance for SEO."
+    def url_analyze(self, url):
+        prompt = f"Find relevant keywords for the following URL: {url}. Describe the different types of keywords that are relevant (e.g., general keywords, long-tail keywords, etc.) explain their importance for SEO, and provide list of top-five ranking websites along with their website url that are using exact same keywords (If there aren't any just tell me there are not may websites that are using similar keywords)."
         response = model.generate_content(prompt)
+        # print(response)
         return response.text
         #return clean_text(response.text)
 
+    def keyword_analyse(self, keyword):
+        prompt = f"Find all the ranking website for the following Keyword: {keyword}. Describe each of their rankings in position based on their traffic"
+        response = model.generate_content(prompt)
+        return response.text
+
 class OnPageOptimizationAgent(Agent):
-    def analyze(self, url):
+    def url_analyze(self, url):
         try:
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
@@ -55,21 +64,19 @@ class OnPageOptimizationAgent(Agent):
             return f"Error analyzing on-page elements: {e}"
 
 class ContentAnalysisAgent(Agent):
-    def analyze(self, url):
+    def url_analyze(self, url):
         try:
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
             content = ' '.join([p.get_text(strip=True) for p in soup.find_all('p')])
             prompt = f"Analyze the following website content for SEO and provide recommendations:\n\n{content}"
             response = model.generate_content(prompt)
-            # response = model.generate_content(prompt)
             return response.text
-            return clean_text(response.text)
         except Exception as e:
             return f"Error analyzing content: {e}"
 
 class TechnicalSEOAgent(Agent):
-    def analyze(self, url):
+    def url_analyze(self, url):
         try:
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
@@ -118,7 +125,7 @@ class TechnicalSEOAgent(Agent):
             return f"Error analyzing technical SEO: {e}"
 
 class LinkBuildingAgent(Agent):
-    def analyze(self, url):
+    def url_analyze(self, url):
         try:
             response = requests.get(url)
             soup = BeautifulSoup(response.content, "html.parser")
@@ -157,16 +164,18 @@ async def analyze_seo(request: Request, url: str = Form(...)):
     link_building_agent = LinkBuildingAgent("Link Building Agent", "Suggests link building strategies")
 
     agent_results = {
-        "Keyword Agent": keyword_agent.analyze(url),
-        "On-Page Agent": onpage_agent.analyze(url),
-        "Content Agent": content_agent.analyze(url),
-        "Technical Agent": technical_agent.analyze(url),
-        "Link Building Agent": link_building_agent.analyze(url),
+        "Keyword Agent": keyword_agent.url_analyze(url),
+        "On-Page Agent": onpage_agent.url_analyze(url),
+        "Content Agent": content_agent.url_analyze(url),
+        "Technical Agent": technical_agent.url_analyze(url),
+        "Link Building Agent": link_building_agent.url_analyze(url),
+        # "Web search Agent": keyword_agent.keyword_analyse(keyword),
     }
 
     return templates.TemplateResponse("index.html", {
         "request": request,
         "url": url,
+        # "keyword": keyword,
         "keyword_results": agent_results["Keyword Agent"],
         "onpage_results": agent_results["On-Page Agent"],
         "content_results": agent_results["Content Agent"],
@@ -184,11 +193,11 @@ async def download_report(url: str, download_format: str):
     link_building_agent = LinkBuildingAgent("Link Building Agent", "Suggests link building strategies")
 
     agent_results = {
-        "Keyword Agent": keyword_agent.analyze(url),
-        "On-Page Agent": onpage_agent.analyze(url),
-        "Content Agent": content_agent.analyze(url),
-        "Technical Agent": technical_agent.analyze(url),
-        "Link Building Agent": link_building_agent.analyze(url),
+        "Keyword Agent": keyword_agent.url_analyze(url),
+        "On-Page Agent": onpage_agent.url_analyze(url),
+        "Content Agent": content_agent.url_analyze(url),
+        "Technical Agent": technical_agent.url_analyze(url),
+        "Link Building Agent": link_building_agent.url_analyze(url),
     }
 
     report_content = generate_report_content(agent_results, url)
