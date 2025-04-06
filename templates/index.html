@@ -19,7 +19,7 @@
         /* General Styling */
         body {
             font-family: 'Arial', sans-serif;
-            background-color: #f4f7fc;
+            <!--background-color: #f4f7fc;-->
             color: #333;
             margin: 0;
             padding: 20px;
@@ -28,10 +28,19 @@
         .container {
             width: 95%;
             margin: auto;
-            background: #fff;
+            background: rgba(255, 255, 255, 0.85); /* makes it slightly see-through */
             padding: 25px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
+        }
+        .bg-iframe {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100vw;
+            height: 100vh;
+            border: none;
+            z-index: -1; /* Keeps it in the background */
         }
         h1 {
             color: #007bff;
@@ -142,6 +151,7 @@
     </style>
 </head>
 <body>
+    <iframe class="bg-iframe" src="https://skybox.blockadelabs.com/e/ab410d7263e7538a59465ae84e5d9aba" allow="fullscreen"></iframe>
     <div class="container">
         <h1>SEO Analysis Tool</h1>
         <form action="/analyze_seo" method="post" onsubmit="showLoader()">

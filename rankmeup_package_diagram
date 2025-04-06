@@ -1,0 +1,25 @@
+digraph "RankMeUp Package Diagram" {
+	RankMeUp [shape=folder]
+	"API Layer (FastAPI)" [shape=folder]
+	"AI Agents" [shape=folder]
+	"Database Layer" [shape=folder]
+	"Frontend (HTML/CSS)" [shape=folder]
+	Utils [shape=folder]
+	"Keyword Analysis" [shape=component]
+	"Content Analysis" [shape=component]
+	"On-Page Analysis" [shape=component]
+	"Link Building" [shape=component]
+	Visualizer [shape=component]
+	"Manager AI" [shape=component]
+	RankMeUp -> "API Layer (FastAPI)"
+	RankMeUp -> "AI Agents"
+	RankMeUp -> "Database Layer"
+	RankMeUp -> "Frontend (HTML/CSS)"
+	RankMeUp -> Utils
+	"AI Agents" -> "Keyword Analysis"
+	"AI Agents" -> "Content Analysis"
+	"AI Agents" -> "On-Page Analysis"
+	"AI Agents" -> "Link Building"
+	"AI Agents" -> Visualizer
+	"AI Agents" -> "Manager AI"
+}
