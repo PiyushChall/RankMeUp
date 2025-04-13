@@ -3,32 +3,22 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>SEO Analysis Tool</title>
-    <link rel="stylesheet" href="/static/style.css">
-    <script>
-        function showLoader() {
-            document.getElementById("loader").style.display = "flex";
-            document.getElementById("results").style.display = "none";
-        }
-        function hideLoader() {
-            document.getElementById("loader").style.display = "none";
-            document.getElementById("results").style.display = "block";
-        }
-    </script>
     <style>
         /* General Styling */
         body {
-            font-family: 'Arial', sans-serif;
-            <!--background-color: #f4f7fc;-->
-            color: #333;
             margin: 0;
-            padding: 20px;
+            padding: 0;
+            height: 100%;
+            font-family: 'Arial', sans-serif;
+            color: #333;
             text-align: center;
+            <!--background: url('/static/background.gif') no-repeat center center fixed;-->
+            background-size: cover;
         }
         .container {
             width: 95%;
             margin: auto;
-            background: rgba(255, 255, 255, 0.85); /* makes it slightly see-through */
+            background: rgba(255, 255, 255, 0.55); /* makes it slightly see-through */
             padding: 25px;
             border-radius: 10px;
             box-shadow: 0px 4px 10px rgba(0, 0, 0, 0.1);
@@ -42,9 +32,21 @@
             border: none;
             z-index: -1; /* Keeps it in the background */
         }
+
+        @keyframes colorChange {
+            0%   { color: #DDEB9D; }
+            50%  { color: #D3E671; }
+            100% { color: #F8ED8C; }
+        }
         h1 {
-            color: #007bff;
-            margin-bottom: 20px;
+            animation: colorChange 3.5s infinite;
+            text-shadow: 2px 4px 6px #000000;
+        }
+
+        h2 {
+            color: #005B41;
+            margin-bottom: 25px;
+            text-shadow: 2px 2px 6px #fff;
         }
 
         /* Loader Styles */
@@ -55,7 +57,26 @@
             flex-direction: column;
             padding: 20px;
         }
-        .spinner {
+
+        .circle {
+            width: 30px;
+            height: 30px;
+            border-radius: 2%;
+            animation: ovalRotate 4s linear infinite, rotateRed 2s linear infinite;
+            box-shadow: 0 0 0 5px #255F38;
+        }
+
+        @keyframes ovalRotate {
+            0%, 75%, 100% {width: 20px, height: 20px}
+            25%, 50% {width: 20px, height: 20px}
+        }
+
+        @keyframes rotateRed {
+            0% {transform: rotate(0deg)}
+            100% {transform: rotate(360deg)}
+        }
+
+        <!--.spinner {
             border: 4px solid rgba(0, 0, 0, 0.1);
             width: 50px;
             height: 50px;
@@ -66,7 +87,7 @@
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
-        }
+        }-->
 
         /* Form Styling */
         form {
@@ -76,24 +97,32 @@
             margin-bottom: 20px;
         }
         input[type="url"] {
+            transition: all 0.3s ease-in-out;
+        }
+        input[type="url"] {
             padding: 12px;
             width: 70%;
-            border: 1px solid #ccc;
-            border-radius: 5px;
+            border-color: #007bff;
+            box-shadow: 0 0 16px rgba(40, 167, 69, 0.6);
+            outline: none;
             font-size: 16px;
         }
         button {
-            padding: 12px 20px;
-            background: #007bff;
-            color: white;
-            border: none;
-            border-radius: 5px;
-            cursor: pointer;
+            padding: 12px 24px;
             font-size: 16px;
-            transition: background 0.3s;
+            font-weight: bold;
+            color: #fff;
+            background: linear-gradient(135deg, #169976, #1DCD9F);
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
         }
         button:hover {
-            background: #0056b3;
+            transform: scale(0.90);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6);
+            background: linear-gradient(135deg, #005B41, #008170);
         }
 
         /* Result Styling */
@@ -130,30 +159,48 @@
         }
         .download-button {
             padding: 10px 15px;
-            background: #28a745;
+            background: linear-gradient(135deg, #169976, #1DCD9F);
             color: white;
             text-decoration: none;
             border-radius: 5px;
             font-size: 14px;
-            /* transition: background 0.3s; */
+            transition: all 0.3s ease-in-out;
+            box-shadow: 0 4px 15px rgba(0, 123, 255, 0.4);
         }
         .download-button:hover {
-            background: #218838;
+            transform: scale(1.05);
+            box-shadow: 0 6px 20px rgba(0, 212, 255, 0.6);
+            background: linear-gradient(135deg, #005B41, #008170);
         }
         .exception{
-          
+
             font-weight: 400;
         }
         .exceptiontwo{
-        
+
             font-weight: 400;
         }
     </style>
+    <title>RankMeUp</title>
+    <!--<link rel="stylesheet" href="/static/style.css">-->
+    <script>
+        function showLoader() {
+            document.getElementById("loader").style.display = "flex";
+            document.getElementById("results").style.display = "none";
+        }
+        function hideLoader() {
+            document.getElementById("loader").style.display = "none";
+            document.getElementById("results").style.display = "block";
+        }
+    </script>
 </head>
 <body>
-    <iframe class="bg-iframe" src="https://skybox.blockadelabs.com/e/ab410d7263e7538a59465ae84e5d9aba" allow="fullscreen"></iframe>
+    <iframe class="bg-iframe" src="https://skybox.blockadelabs.com/e/4104afcefa60a926d8eb811349a83687" width=700 height=700 style="border:0;" allow="fullscreen"></iframe>
+    <!--<iframe class="bg-iframe" src="https://skybox.blockadelabs.com/e/6074b9d178cad1a131c91b0edd559b8c" width=700 height=700 style="border:0;" allow="fullscreen">--></iframe>
+    <!--<iframe class="bg-iframe" src="https://skybox.blockadelabs.com/e/ab410d7263e7538a59465ae84e5d9aba" allow="fullscreen"></iframe>-->
     <div class="container">
-        <h1>SEO Analysis Tool</h1>
+        <h1>Welcome to RankMeUp</h1>
+        <h2>An SEO AI Agent</h2>
         <form action="/analyze_seo" method="post" onsubmit="showLoader()">
             <input type="url" id="url" name="url" placeholder="Enter website URL...">
 <!--            <h5>OR</h5>-->
@@ -163,8 +210,8 @@
 
         <!-- Loader Animation -->
         <div id="loader">
-            <div class="spinner"></div>
-            <p>Analyzing... Please wait.</p>
+            <div class="circle"></div>
+            <p>Analyzing... Please wait...</p>
         </div>
 
         {% if url %}
